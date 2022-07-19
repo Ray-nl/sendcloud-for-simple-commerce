@@ -1,0 +1,31 @@
+{
+    "name": "ray-nl/sendcloud-for-simple-commerce",
+    "autoload": {
+        "psr-4": {
+            "RayNl\\SendcloudForSimpleCommerce\\": "src"
+        }
+    },
+    "authors": [
+      {
+        "name": "Rolin Bos",
+        "email": "rolin@ray.nl"
+      }
+    ],
+    "support": {
+      "email": "developers@ray.nl"
+    },
+    "extra": {
+        "statamic": {
+            "name": "Sendcloud For Simple Commerce",
+            "description": "Sendcloud For Simple Commerce addon"
+        },
+        "laravel": {
+            "providers": [
+                "RayNl\\SendcloudForSimpleCommerce\\ServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "jouwweb/sendcloud": "^3.10"
+    }
+}
