@@ -26,6 +26,19 @@
         }
     },
     "require": {
+        "php": "^8.0",
+        "statamic/cms": "3.3.*",
         "jouwweb/sendcloud": "^3.10"
+    },
+    "require-dev": {
+        "nunomaduro/larastan": "^2.0",
+        "orchestra/testbench": "^7.0",
+        "phpunit/phpunit": "^9.5.10",
+        "laravel/pint": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
     }
 }

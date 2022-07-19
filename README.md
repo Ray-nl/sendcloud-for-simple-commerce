@@ -21,3 +21,17 @@ composer require ray-nl/sendcloud-for-simple-commerce
 ## How to Use
 
 Here's where you can explain how to use this wonderful addon.
+
+Add to your .env file:
+``` bash
+SENDCLOUD_PUBLIC_KEY=your-public-sendgrid-key
+SENDCLOUD_SECRET_KEY=your-secret-sendgrid-key
+
+SENDCLOUD_PARTNER_ID=your-partner_id // Default is this null
+SENDCLOUD_API_BASE_URL=api-base-url //Default is this https://panel.sendcloud.sc/api/v2/
+```
+
+Publish the configuration file:
+``` bash
+php artisan vendor:publish --provider="RayNL\SendcloudForSimpleCommerce\ServiceProvider" --tag="config"
+```
