@@ -1,0 +1,76 @@
+sections:
+  main:
+    display: Main
+    fields:
+      -
+        handle: title
+        field:
+          type: text
+          required: true
+          validate:
+            - required
+          display: Title
+          instructions_position: above
+          listable: hidden
+          visibility: visible
+          input_type: text
+          antlers: false
+      -
+        handle: sendcloud_id
+        field:
+          display: 'Sendcloud ID'
+          type: integer
+          icon: integer
+          listable: hidden
+          instructions_position: above
+          visibility: hidden
+          validate:
+            - required
+      -
+        handle: minimum_weight
+        field:
+          display: 'Minimum weight'
+          type: integer
+          icon: integer
+          listable: hidden
+          instructions_position: above
+          visibility: read_only
+          validate:
+            - required
+      -
+        handle: maximum_weight
+        field:
+          display: 'Maximum weight'
+          type: integer
+          icon: integer
+          listable: hidden
+          instructions_position: above
+          visibility: read_only
+          validate:
+            - required
+      -
+        handle: carrier
+        field:
+          input_type: text
+          antlers: false
+          display: Carrier
+          type: text
+          icon: text
+          listable: hidden
+          instructions_position: above
+          visibility: read_only
+          validate:
+            - required
+      -
+        handle: prices
+        field:
+          mode: dynamic
+          display: Prices
+          type: array
+          icon: array
+          listable: hidden
+          instructions_position: above
+          visibility: visible
+          validate:
+            - required
+title: 'Shipment methods'

@@ -1,0 +1,36 @@
+<?php
+
+namespace App\ShippingMethods;
+
+use DoubleThreeDigital\SimpleCommerce\Contracts\Order;
+use DoubleThreeDigital\SimpleCommerce\Contracts\ShippingMethod;
+use DoubleThreeDigital\SimpleCommerce\Orders\Address;
+use DoubleThreeDigital\SimpleCommerce\Shipping\BaseShippingMethod;
+
+class !CLASSNAME! extends BaseShippingMethod implements ShippingMethod
+{
+    public function name(): string
+    {
+        return '!NAME!';
+    }
+
+    public function description(): string
+    {
+        return 'Description of your shipping method';
+    }
+
+    public function calculateCost(Order $order): int
+    {
+        return !PRICE!;
+    }
+
+    public function checkAvailability(Order $order, Address $address): bool
+    {
+        return true;
+    }
+
+    public function getSendCloudId(): int
+    {
+        return !SENDCLOUDID!;
+    }
+}

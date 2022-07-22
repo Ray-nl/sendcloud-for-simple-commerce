@@ -6,9 +6,9 @@ use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use JouwWeb\SendCloud\Client;
-use JouwWeb\SendCloud\Exception\SendCloudRequestException;
 use JouwWeb\SendCloud\Model\Address;
 use JouwWeb\SendCloud\Model\Parcel;
+use RayNl\SendcloudForSimpleCommerce\Exceptions\SendcloudCountryCodeIsMissingException;
 use RayNl\SendcloudForSimpleCommerce\Exceptions\SendcloudPrivateKeyException;
 use RayNl\SendcloudForSimpleCommerce\Exceptions\SendcloudPublicKeyException;
 
@@ -72,21 +72,16 @@ class SendcloudService
         return $this->client->getShippingMethods();
     }
 
-    /**
-     * Get all the carriers that are enabled in Sendcloud
-     *
-     * @return Collection
-     */
-    public function getCarriers(): Collection
+    public function getShippingMethodsForCountry(string $country): array
     {
-        // Cache for an hour
-        $seconds = 60 * 60;
+        $shippingMethods = [];
+        foreach ($this->getShippingMethods() as $_shippingMethode) {
+            if ($_shippingMethode->getPriceForCountry($country) !== null) {
+                $shippingMethods[] = $_shippingMethode;
+            }
+        }
 
-        return Cache::remember('carriers', $seconds,function () {
-            return collect($this->getShippingMethods())->map(function ($_carrier) {
-                return $_carrier->getCarrier();
-            })->unique()->values();
-        });
+        return $shippingMethods;
     }
 
     public function createParcel(): void

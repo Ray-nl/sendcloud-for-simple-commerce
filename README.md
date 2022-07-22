@@ -35,3 +35,31 @@ Publish the configuration file:
 ``` bash
 php artisan vendor:publish --provider="RayNL\SendcloudForSimpleCommerce\ServiceProvider" --tag="config"
 ```
+
+## Tags
+You can get the available carriers as an tag:
+```antlers
+{{ carriers }}
+    <option value="{{ id }}">{{ name }}</option>
+{{ /carriers }}
+```
+For now you can only get the following values:
+- id
+- name
+
+### Important!
+You need to add the weight to the products blueprint for calculating the price.
+```yaml
+      -
+        handle: weight
+        field:
+          display: Weight
+          type: float
+          icon: float
+          instructions: 'In Kilograms (KG)'
+          listable: hidden
+          instructions_position: above
+          visibility: visible
+          validate:
+            - required
+```
