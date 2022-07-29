@@ -3,9 +3,7 @@
 namespace RayNl\SendcloudForSimpleCommerce\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Str;
-use RayNl\SendcloudForSimpleCommerce\Helpers\ShippingMethodGeneratorHelper;
+use RayNl\SendcloudForSimpleCommerce\Helpers\GenerateShippingMethodeTemplate;
 use RayNl\SendcloudForSimpleCommerce\Services\SendcloudService;
 use Statamic\Console\RunsInPlease;
 use Statamic\Facades\Entry;
@@ -45,33 +43,24 @@ class GenerateShippingMethodsCommand extends Command
             $shippingMethods = SendcloudService::init()->getShippingMethodsForCountry(config('sendcloud-simple-commerce.country'));
         }
 
+        $enabledShippingMethodes = [];
+
         foreach ($shippingMethods as $_shippingMethod) {
-            $entry = Entry::query()->where('collection', 'shipment_methods')->where('sendcloud_id', $_shippingMethod->getId())->first();
-
-            $this->info($_shippingMethod->getName());
-
-            if ($entry === null) {
-                $entry = Entry::make()->collection('shipment_methods');
-                $published = false;
-                $prices = $_shippingMethod->getPrices();
-            } else {
-                $prices = $entry->prices;
-                $published = $entry->published;
+            if ($this->confirm('Do you want to enable ' . $_shippingMethod->getName() . ' as shipping method?', true)) {
+                $enabledShippingMethodes[] = $_shippingMethod;
             }
-
-            $entry
-                ->set('sendcloud_id', $_shippingMethod->getId())
-                ->set('title', $_shippingMethod->getName())
-                ->set('minimum_weight', $_shippingMethod->getMinimumWeight())
-                ->set('maximum_weight', $_shippingMethod->getMaximumWeight())
-                ->set('carrier', $_shippingMethod->getCarrier())
-                ->set('prices', $prices)
-                ->published($published)
-                ->save();
         }
 
-        // Generates the templates and add only the active to the shipments config.
-        $this->info('Generate the templates');
+        if (count($enabledShippingMethodes) === 0) {
+            return 1;
+        }
+
+        $this->info('Add the following classes to simple-commerce.php config in the shipping methods array');
+
+        foreach ($enabledShippingMethodes as $_enabledShippingMethod) {
+            $className = GenerateShippingMethodeTemplate::generate($_enabledShippingMethod);
+            $this->info("\\App\\ShippingMethods\\" . $className . "::class => [],");
+        }
 
         return 1;
     }

@@ -31,21 +31,15 @@ SENDCLOUD_PARTNER_ID=your-partner_id // Default is this null
 SENDCLOUD_API_BASE_URL=api-base-url //Default is this https://panel.sendcloud.sc/api/v2/
 ```
 
-Publish the configuration file:
+Publish the config file:
 ``` bash
-php artisan vendor:publish --provider="RayNL\SendcloudForSimpleCommerce\ServiceProvider" --tag="config"
+php artisan vendor:publish --provider="RayNl\SendcloudForSimpleCommerce\ServiceProvider" --tag="config"
 ```
 
-## Tags
-You can get the available carriers as an tag:
-```antlers
-{{ carriers }}
-    <option value="{{ id }}">{{ name }}</option>
-{{ /carriers }}
+Publish the blueprints:
+```bash
+php artisan vendor:publish --provider="RayNl\SendcloudForSimpleCommerce\ServiceProvider" --tag="blueprints"
 ```
-For now you can only get the following values:
-- id
-- name
 
 ### Important!
 You need to add the weight to the products blueprint for calculating the price.
@@ -62,4 +56,9 @@ You need to add the weight to the products blueprint for calculating the price.
           visibility: visible
           validate:
             - required
+```
+
+For generating the shipping methods run the following command:
+```bash
+php artisan sendcloud:generate-shipping-methods
 ```

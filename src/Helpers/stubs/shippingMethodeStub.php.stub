@@ -26,6 +26,29 @@ class !CLASSNAME! extends BaseShippingMethod implements ShippingMethod
 
     public function checkAvailability(Order $order, Address $address): bool
     {
+        $products = $order->lineItems->map(function ($_lineItem) {
+            return $_lineItem->product->data['weight'];
+        });
+
+        $minWeight = !MINWEIGHT!;
+        $maxWeight = !MAXWEIGHT!;
+
+        if ($products->min() < $minWeight) {
+            return false;
+        }
+
+        if ($products->min() > $maxWeight) {
+            return false;
+        }
+
+        if ($products->max() < $minWeight) {
+            return false;
+        }
+
+        if ($products->max() > $maxWeight) {
+            return false;
+        }
+
         return true;
     }
 

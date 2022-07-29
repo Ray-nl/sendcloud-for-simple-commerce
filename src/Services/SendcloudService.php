@@ -20,12 +20,17 @@ class SendcloudService
 
     protected Parcel $parcel;
 
+    public function __construct()
+    {
+        $this->setSendcloud();
+    }
+
     public static function init(): SendcloudService
     {
         return (new self())->setSendcloud();
     }
 
-    private function setSendcloud(): static
+    public function setSendcloud(): static
     {
         if (empty(config('sendcloud-simple-commerce.public_key'))) {
             Throw new SendcloudPublicKeyException();
@@ -84,11 +89,28 @@ class SendcloudService
         return $shippingMethods;
     }
 
-    public function createParcel(): void
+    public function createParcel(Address $address, int $orderNumber, int $weight, int $servicePointId = null, string $customsInvoiceNumber = null, int $customShipmentType = null, array $items = null, string $postNumber = null): void
     {
+        $this->parcel = $this->client->createParcel(
+            shippingAddress: $address,
+            servicePointId: $servicePointId,
+            orderNumber: $orderNumber,
+            weight: $weight,
+            customsInvoiceNumber: $customsInvoiceNumber,
+            customsShipmentType: $customShipmentType,
+            items: $items,
+            postNumber: $postNumber,
+        );
     }
 
-    public function createLabel(): void
+    public function createLabel(int $shippingMethodId, string $defaultSenderAddress = null): void
     {
+        $parcel = $this->client->createLabel($this->parcel, $shippingMethodId, $defaultSenderAddress);
+        $this->parcel = $parcel;
+    }
+
+    public function createLabelPdf()
+    {
+        return $this->client->getLabelPdf($this->parcel, Parcel::LABEL_FORMAT_A4_BOTTOM_RIGHT);
     }
 }
