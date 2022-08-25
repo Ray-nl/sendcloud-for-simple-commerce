@@ -1,64 +1,64 @@
 # Sendcloud For Simple Commerce
 
-> Sendcloud For Simple Commerce is a Statamic addon that does something pretty neat.
+Sendcloud For Simple Commerce.
 
-## Features
-
-This addon does:
-
-- This
-- And this
-- And even this
-
-## How to Install
-
-You can search for this addon in the `Tools > Addons` section of the Statamic control panel and click **install**, or run the following command from your project root:
-
-``` bash
-composer require ray-nl/sendcloud-for-simple-commerce
-```
-
-## How to Use
-
-Here's where you can explain how to use this wonderful addon.
-
-Add to your .env file:
-``` bash
-SENDCLOUD_PUBLIC_KEY=your-public-sendgrid-key
-SENDCLOUD_SECRET_KEY=your-secret-sendgrid-key
-
-SENDCLOUD_PARTNER_ID=your-partner_id // Default is this null
-SENDCLOUD_API_BASE_URL=api-base-url //Default is this https://panel.sendcloud.sc/api/v2/
-```
-
-Publish the config file:
-``` bash
-php artisan vendor:publish --provider="RayNl\SendcloudForSimpleCommerce\ServiceProvider" --tag="config"
-```
-
-Publish the blueprints:
-```bash
-php artisan vendor:publish --provider="RayNl\SendcloudForSimpleCommerce\ServiceProvider" --tag="blueprints"
-```
-
-### Important!
-You need to add the weight to the products blueprint for calculating the price.
-```yaml
-      -
-        handle: weight
-        field:
-          display: Weight
-          type: float
-          icon: float
-          instructions: 'In Kilograms (KG)'
-          listable: hidden
-          instructions_position: above
-          visibility: visible
-          validate:
-            - required
-```
-
-For generating the shipping methods run the following command:
+## Get shipping methods
+To get all the available shipping methods run the following command:
 ```bash
 php artisan sendcloud:generate-shipping-methods
+```
+
+## Add action to CP
+If you want to create an label and marked an order as shipped add the following action to your application:
+```bash
+<?php
+
+namespace App\Actions;
+
+use DoubleThreeDigital\SimpleCommerce\Facades\Order;
+use Illuminate\Support\Facades\Storage;
+use RayNl\SendcloudForSimpleCommerce\Services\SendcloudService;
+use Statamic\Actions\Action;
+use Statamic\Contracts\Entries\Entry;
+
+class DownloadLabel extends Action
+{
+    public function visibleTo($item)
+    {
+        if ($item instanceof Entry) {
+            return $item->collection->handle === 'orders';
+        }
+
+        return false;
+    }
+
+    public function visibleToBulk($items)
+    {
+        return false;
+    }
+
+    public function download($items, $values)
+    {
+        foreach ($items as $item) {
+            $shippingMethod = new ($item->shipping_method->first())();
+            if ($shippingMethod->getSendCloudId() !== null) {
+                if (!Storage::exists("labels/{$item->order_number}/label-{$item->order_number}.pdf")) {
+                    if ($item->sendcloud_id !== null) {
+
+                        $sendcloud = new SendcloudService();
+                        $sendcloud->getParcelFromId($item->sendcloud_id);
+                        $sendcloud->createLabel($shippingMethod->getSendCloudId());
+
+                        Storage::put('labels/' . $item->order_number . '/label-' . $item->order_number . '.pdf', $sendcloud->createLabelPdf());
+                    }
+                }
+
+                Order::find($item->id)->markAsShipped();
+
+                return storage_path("app/labels/{$item->order_number}/label-{$item->order_number}.pdf");
+            }
+        }
+    }
+}
+
 ```
