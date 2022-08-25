@@ -33,15 +33,26 @@ class SendOrderToSendCloudListener
             // Check if sendcloud ID exists
             if (method_exists($shippingMethod, 'getSendCloudId')) {
                 $shippingMethodId = $shippingMethod->getSendCloudId();
+
+                if (config('app.env') === 'local') {
+                    // Test labels
+                    $shippingMethodId = 8;
+                }
+
                 $weight = $event->order->lineItems->map(function ($_lineItem) {
                     return $_lineItem->product->data['weight'];
                 })->max();
+
+                $houseNumber = $event->order->data['shipping_house_number'];
+                if (array_key_exists('shipping_house_number_addition', $event->order->data()->toArray())) {
+                    $houseNumber .= ' ' . $event->order->data['shipping_house_number_addition'];
+                }
 
                 $address = new Address(
                     name: $event->order->customer->data['name'],
                     companyName: $event->order->customer?->data['company'] ?? null,
                     street: $event->order->data['shipping_address'],
-                    houseNumber: $event->order->data['shipping_house_number'],
+                    houseNumber: $houseNumber,
                     city: $event->order->data['shipping_city'],
                     postalCode: $event->order->data['shipping_postal_code'],
                     countryCode: 'NL',
