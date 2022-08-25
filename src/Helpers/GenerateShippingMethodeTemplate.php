@@ -32,8 +32,10 @@ class GenerateShippingMethodeTemplate
         }
 
         $path .= $className . '.php';
+        if (!file_exists($path)) {
+            file_put_contents($path, $content);
+        }
 
-        file_put_contents($path, $content);
 
         return $className;
     }
