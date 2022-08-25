@@ -105,6 +105,10 @@ class SendcloudService
 
     public function createLabel(int $shippingMethodId, string $defaultSenderAddress = null): void
     {
+        if (config('app.env') === 'local') {
+            $shippingMethodId = 8;
+        }
+
         $parcel = $this->client->createLabel($this->parcel, $shippingMethodId, $defaultSenderAddress);
         $this->parcel = $parcel;
     }
@@ -112,5 +116,17 @@ class SendcloudService
     public function createLabelPdf()
     {
         return $this->client->getLabelPdf($this->parcel, Parcel::LABEL_FORMAT_A4_BOTTOM_RIGHT);
+    }
+
+    public function getParcel()
+    {
+        return $this->parcel;
+    }
+
+    public function getParcelFromId($id)
+    {
+        $this->parcel = $this->client->getParcel($id);
+
+        return $this;
     }
 }

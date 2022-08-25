@@ -30,15 +30,8 @@ class SendOrderToSendCloudListener
     {
         if (class_exists($event->order->data['shipping_method'])) {
             $shippingMethod = new $event->order->data['shipping_method']();
-            // Check if sendcloud ID exists
-            if (method_exists($shippingMethod, 'getSendCloudId')) {
-                $shippingMethodId = $shippingMethod->getSendCloudId();
 
-                if (config('app.env') === 'local') {
-                    // Test labels
-                    $shippingMethodId = 8;
-                }
-
+            if (method_exists($shippingMethod, 'getSoundCloudId')) {
                 $weight = $event->order->lineItems->map(function ($_lineItem) {
                     return $_lineItem->product->data['weight'];
                 })->max();
@@ -60,15 +53,20 @@ class SendOrderToSendCloudListener
                 );
 
                 $sendcloud = new SendcloudService();
+
                 $sendcloud->createParcel(
                     address: $address,
                     orderNumber: $event->order->orderNumber,
                     weight: $weight,
                 );
 
-                $sendcloud->createLabel($shippingMethodId);
-
-                Storage::put('labels/'. $event->order->orderNumber . '/label-' . $event->order->orderNumber . '.pdf', $sendcloud->createLabelPdf());
+                // Set parcel ID to order
+                $entry = Entry::query()
+                    ->where('collection', 'orders')
+                    ->where('id', $event->order->id())
+                    ->first();
+                $entry->sendcloud_id = $sendcloud->getParcel()->getId();
+                $entry->save();
             }
         }
     }
